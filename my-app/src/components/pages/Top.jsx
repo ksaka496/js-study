@@ -9,11 +9,11 @@ const Top = () => {
 	// アドバイスstate
 	const [advice, setAdvice] = useState("");
 	// 検索実行
-	const onClickSearch = () => {
+	const onClickSearch = async () => {
 		setOnExecution(true);
 		try {
 			console.log(onExecution);
-			axios.get(adviceUrl).then((response) => {
+			await axios.get(adviceUrl).then((response) => {
 				setAdvice(response.data.slip.advice);
 			});
 		} catch (e) {
@@ -27,12 +27,12 @@ const Top = () => {
 			<div className="container-fluid pt-5">
 				<div className="row pt-5">
 					<div className="col  ">
-						<h1 className="h1">いろいろ検索</h1>
+						<div className="display-4">いろいろ検索</div>
 					</div>
 				</div>
 				<div className="row pt-5 d-flex justify-content-center">
 					<div className="col-3 ">
-						<label className="form-label">検索したい言葉</label>
+						<label className="form-label h4">検索したい言葉</label>
 						<input
 							className="form-control mt-1"
 							type="text"
@@ -109,7 +109,7 @@ const Top = () => {
 					{/* row end */}
 				</div>
 				{onExecution ? (
-					<div className="spinner-border text-primary" role="status">
+					<div className="spinner-border text-primary mt-3" role="status">
 						<span className="visually-hidden">Loading...</span>
 					</div>
 				) : (
