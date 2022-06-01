@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const Top = () => {
 	// アドバイスURL
@@ -45,7 +46,7 @@ const Top = () => {
 				setAdviceTranslate(response.data.output_text);
 			});
 		} catch (e) {
-			alert(e);
+			console.log(e);
 		} finally {
 		}
 	};
@@ -84,6 +85,7 @@ const Top = () => {
 					<div className="row pt-5 d-flex justify-content-center">
 						<div className="col-5">
 							<label className="form-label h4">英語でアドバイス</label>
+							<br />
 							<label className="form-label h5">
 								ランダムで英語アドバイスがもらえるよ
 							</label>
@@ -154,6 +156,10 @@ const Top = () => {
 					</span>
 				)}
 			</div>
+			{/* start GitRanking */}
+			<Link to={"GitRanking"} className="link-primary">
+				GitRanking
+			</Link>
 		</>
 	);
 };
