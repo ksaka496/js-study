@@ -4,22 +4,49 @@ import axios from "axios";
 const Top = () => {
 	// アドバイスURL
 	const adviceUrl = "https://api.adviceslip.com/advice";
+	// 翻訳URL
+	const translateUrl =
+		"https://ho25j6wrh5tl7vni4t5vvgax3q0tgyhp.lambda-url.ap-northeast-1.on.aws?input_text=";
 	// API実行時管理state
 	const [onExecution, setOnExecution] = useState(false);
-	// アドバイスstate
+	// アドバイス（原文）state
 	const [advice, setAdvice] = useState("");
+	// アドバイス（原文）
+	let adviceStr = "";
+	// アドバイス（訳分）state
+	const [adviceTranslate, setAdviceTranslate] = useState("");
 	// 検索実行
 	const onClickSearch = async () => {
 		setOnExecution(true);
+		await getEnAdvice();
+		await trancelateJa(adviceStr);
+		setOnExecution(false);
+	};
+
+	// 英語アドバイス取得
+	const getEnAdvice = async () => {
 		try {
-			console.log(onExecution);
 			await axios.get(adviceUrl).then((response) => {
-				setAdvice(response.data.slip.advice);
+				const adviceStrAPI = response.data.slip.advice;
+				setAdvice(adviceStrAPI);
+				adviceStr = adviceStrAPI;
+			});
+		} catch (e) {
+			console.log(e);
+		} finally {
+		}
+	};
+
+	// 日本語へ翻訳
+	const trancelateJa = async (str) => {
+		const getTranslateUrl = translateUrl + str;
+		try {
+			await axios.get(getTranslateUrl).then((response) => {
+				setAdviceTranslate(response.data.output_text);
 			});
 		} catch (e) {
 			alert(e);
 		} finally {
-			setOnExecution(false);
 		}
 	};
 	return (
@@ -53,6 +80,14 @@ const Top = () => {
 						>
 							！Search！
 						</button>
+					</div>
+					<div className="row pt-5 d-flex justify-content-center">
+						<div className="col-5">
+							<label className="form-label h4">英語でアドバイス</label>
+							<label className="form-label h5">
+								ランダムで英語アドバイスがもらえるよ
+							</label>
+						</div>
 					</div>
 					<div className="row pt-3 d-flex justify-content-center">
 						<div className="col">
@@ -113,7 +148,10 @@ const Top = () => {
 						<span className="visually-hidden">Loading...</span>
 					</div>
 				) : (
-					<div className="pt-3">{advice}</div>
+					<span>
+						<div className="pt-3">{advice}</div>
+						<div className="pt-3">{adviceTranslate}</div>
+					</span>
 				)}
 			</div>
 		</>
