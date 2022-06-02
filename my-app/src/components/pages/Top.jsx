@@ -160,6 +160,9 @@ const Top = () => {
 			<Link to={"GitRanking"} className="link-primary">
 				GitRanking
 			</Link>
+			<Link to={"FinancialRanking"} className="link-primary">
+				FinancialRanking
+			</Link>
 		</>
 	);
 };
