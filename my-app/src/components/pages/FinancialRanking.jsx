@@ -7,13 +7,14 @@ import * as Config from "../../config/Config";
 
 const FinancialRanking = () => {
 	// FinancialAPI
-	const fpmAPI = `https://financialmodelingprep.com/api/v3/ratios/AAPL?limit=120&apikey=${Config.key}`;
+	const fpmAPI = `https://financialmodelingprep.com/api/v3/income-statement/AAPL?limit=480&apikey=${Config.key}`;
 	// 言語セレクトボックス
 	const [ticker, settTicker] = useState();
 	// セレクトボックス変更用
 	const handleChange = (event) => {
 		settTicker(event.target.value);
 	};
+	const [sales, setSales] = useState("-");
 	// gitスター表示用row
 	const [gitRow, setGitRow] = useState("");
 	const [gitColumnDefs] = useState([
@@ -43,6 +44,7 @@ const FinancialRanking = () => {
 			await axios.get(fpmAPI).then((response) => {
 				const fmpItems = response.data;
 				console.table(fmpItems);
+				setSales(fmpItems[0].revenue.toLocaleString());
 				setGitRow(fmpItems);
 			});
 		} catch (e) {
@@ -73,7 +75,6 @@ const FinancialRanking = () => {
 						/>
 					</div>
 				</div>
-
 				<div className="row pt-3 d-flex justify-content-center">
 					<div className="col-3 ">
 						<button
@@ -85,6 +86,49 @@ const FinancialRanking = () => {
 						</button>
 					</div>
 				</div>
+				<div className="row d-flex justify-content-center">
+					<div className="col pt-5 d-flex justify-content-center">
+						<div className="card" style={{ width: "18rem" }}>
+							<div className="card-body">
+								<h4 className="card-title">売上高</h4>
+								<h6 className="card-subtitle mb-2 text-muted">Card subtitle</h6>
+								<p className="h2 card-text">{sales}</p>
+								<i className="fa-solid fa-dollar-sign fa-2x"></i>
+							</div>
+						</div>
+					</div>
+					<div className="col pt-5 d-flex justify-content-center">
+						<div className="card" style={{ width: "18rem" }}>
+							<div className="card-body">
+								<h3 className="card-title">営業利益</h3>
+								<h6 className="card-subtitle mb-2 text-muted">Card subtitle</h6>
+								<p className="h2 card-text">100,000$</p>
+								<i className="fa-solid fa-dollar-sign fa-2x"></i>
+							</div>
+						</div>
+					</div>
+					<div className="col pt-5 d-flex justify-content-center">
+						<div className="card" style={{ width: "18rem" }}>
+							<div className="card-body">
+								<h3 className="card-title">営業利益</h3>
+								<h6 className="card-subtitle mb-2 text-muted">Card subtitle</h6>
+								<p className="h2 card-text">100,000$</p>
+								<i className="fa-solid fa-dollar-sign fa-2x"></i>
+							</div>
+						</div>
+					</div>
+					<div className="col pt-5 d-flex justify-content-center">
+						<div className="card" style={{ width: "18rem" }}>
+							<div className="card-body">
+								<h3 className="card-title">純利益</h3>
+								<h6 className="card-subtitle mb-2 text-muted">Card subtitle</h6>
+								<p className="h2 card-text">100,000$</p>
+								<i className="fa-solid fa-dollar-sign fa-2x"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+
 				<div className="row pt-3 d-flex justify-content-center">
 					<div className="col-6">
 						<div
