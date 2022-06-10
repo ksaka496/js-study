@@ -4,6 +4,10 @@ import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/dist/styles/ag-grid.css";
 import "ag-grid-community/dist/styles/ag-theme-alpine.css";
 import * as Config from "../../config/Config";
+import Sidebar from "./Sidebar";
+import LineSample from "./LineSample";
+import { Line } from "react-chartjs-2";
+import Chart from "chart.js/auto";
 
 const FinancialRanking = () => {
 	// FinancialAPI
@@ -25,6 +29,9 @@ const FinancialRanking = () => {
 	const [costOfRevenue, setCostOfRevenue] = useState("-");
 	const [grossProfit, setGrossProfit] = useState("-");
 	const [grossProfitRatio, setGrossProfitRatio] = useState("-");
+	const [dateData, seDateData] = useState([]);
+	const [initialData, setInitialData] = useState(false);
+	const [revenueData, setRevenueData] = useState([]);
 	// ticker
 	const tickers = {
 		AMZN: "AMZN",
@@ -33,6 +40,9 @@ const FinancialRanking = () => {
 		META: "META",
 		NFLX: "NFLX",
 	};
+	// グラフ用
+	// let dateData = [];
+	// let revenueData = [];
 	// gitスター表示用row
 	const [gitRow, setGitRow] = useState("");
 	const [gitColumnDefs] = useState([
@@ -54,23 +64,34 @@ const FinancialRanking = () => {
 		}),
 		[]
 	);
-	// row整形用
-	// const makeGitRow = (items) => {
-	// 	setGitRow(items);
-	// };
-	// 検索実行
+	/**
+	 *
+	 * @param {selectTiker} selectTiker
+	 */
 	const onClickSearch = async (selectTiker) => {
-		const fpmAPIUrl = `${fpmAPI}${selectTiker}?limit=480&apikey=${Config.key}`;
+		const fpmAPIUrl = `${fpmAPI}${selectTiker}?limit=120&apikey=${Config.key}`;
 		console.log(fpmAPIUrl);
 		try {
 			await axios.get(fpmAPIUrl).then((response) => {
 				const fmpItems = response.data;
+				seDateData(
+					fmpItems.map((item, index) => (dateData[index] = item.date)).reverse()
+				);
+				console.log(dateData);
+				setRevenueData(
+					fmpItems
+						.map((item, index) => (revenueData[index] = item.revenue))
+						.reverse()
+				);
+				console.log(revenueData);
+
 				console.table(fmpItems);
 				setSales(fmpItems[0].revenue.toLocaleString());
 				setGrossProfit(fmpItems[0].grossProfit.toLocaleString());
 				setCostOfRevenue(fmpItems[0].costOfRevenue.toLocaleString());
 				setGrossProfitRatio(fmpItems[0].grossProfitRatio.toLocaleString());
 				setGitRow(fmpItems);
+				setInitialData(true);
 			});
 		} catch (e) {
 			console.log(e);
@@ -78,15 +99,25 @@ const FinancialRanking = () => {
 		}
 	};
 
+	const linedata = {
+		labels: dateData,
+		datasets: [
+			{
+				label: "My First dataset",
+				data: revenueData,
+			},
+		],
+	};
+
 	return (
 		<>
-			<div className="container-fluid pt-5">
-				<div className="row pt-5">
+			<div className="container-fluid pt-3">
+				<div className="row pt-3">
 					<div className="col  ">
 						<div className="display-4">米国企業分析</div>
 					</div>
 				</div>
-				<div className="row pt-5 d-flex justify-content-center">
+				<div className="row pt-3 d-flex justify-content-center">
 					<div className="col-sm-3">
 						<label className="form-label h4">検索したい米国企業</label>
 						<select
@@ -94,7 +125,7 @@ const FinancialRanking = () => {
 							aria-label="Default select example"
 							onChange={handleChange}
 						>
-							<option selected disabled>
+							<option defaultValue={"GAFAM銘柄"} disabled>
 								GAFAM銘柄
 							</option>
 							<option value={tickers.AMZN}>Amazon(AMZN)</option>
@@ -105,7 +136,7 @@ const FinancialRanking = () => {
 						</select>
 					</div>
 				</div>
-				<div className="row pt-3 d-flex justify-content-center">
+				{/* <div className="row pt-3 d-flex justify-content-center">
 					<div className="col-12">
 						<button
 							type="button"
@@ -115,30 +146,36 @@ const FinancialRanking = () => {
 							！Search！
 						</button>
 					</div>
-				</div>
+				</div> */}
 				<div className="row d-flex justify-content-center">
-					<div className="col pt-5 d-flex justify-content-center">
-						<div className="card" style={{ width: "18rem" }}>
+					<div className="col pt-3 d-flex justify-content-center">
+						<div
+							className="card border border-3 rounded-3 shadow"
+							style={{ width: "18rem" }}
+						>
 							<div className="card-body">
 								<h3 className="card-title">シンボル</h3>
 								<h6 className="card-subtitle mb-2 text-muted">Symbol</h6>
 								<p className="h2 card-text">{ticker}</p>
 								{ticker === tickers.AMZN ? (
-									<i class="fa-brands fa-amazon fa-3x"></i>
+									<i className="fa-brands fa-amazon fa-3x"></i>
 								) : ticker === tickers.AAPL ? (
 									<i className="fa-brands  fa-apple fa-3x"></i>
 								) : ticker === tickers.MSFT ? (
-									<i class="fa-brands fa-microsoft  fa-3x"></i>
+									<i className="fa-brands fa-microsoft  fa-3x"></i>
 								) : ticker === tickers.META ? (
-									<i class="fa-solid fa-thumbs-up  fa-3x"></i>
+									<i className="fa-solid fa-thumbs-up  fa-3x"></i>
 								) : null}
 							</div>
 						</div>
 					</div>
 				</div>
 				<div className="row d-flex justify-content-center">
-					<div className="col pt-5 d-flex justify-content-center">
-						<div className="card" style={{ width: "18rem" }}>
+					<div className="col pt-3 d-flex justify-content-center">
+						<div
+							className="card border border-3 shadow"
+							style={{ width: "18rem" }}
+						>
 							<div className="card-body">
 								<h3 className="card-title">売上高</h3>
 								<h6 className="card-subtitle mb-2 text-muted">Sales Revenue</h6>
@@ -147,8 +184,11 @@ const FinancialRanking = () => {
 							</div>
 						</div>
 					</div>
-					<div className="col pt-5 d-flex justify-content-center">
-						<div className="card" style={{ width: "18rem" }}>
+					<div className="col pt-3 d-flex justify-content-center">
+						<div
+							className="card border border-3 shadow rounded"
+							style={{ width: "18rem" }}
+						>
 							<div className="card-body">
 								<h3 className="card-title">収益コスト</h3>
 								<h6 className="card-subtitle mb-2 text-muted">
@@ -159,9 +199,12 @@ const FinancialRanking = () => {
 							</div>
 						</div>
 					</div>
-					<div className="col pt-5 d-flex justify-content-center">
-						<div className="card" style={{ width: "18rem" }}>
-							<div className="card-body">
+					<div className="col pt-3 d-flex justify-content-center">
+						<div
+							className="card rounded-start border border-3 "
+							style={{ width: "18rem" }}
+						>
+							<div className="card-body shadow">
 								<h3 className="card-title">売上総利益</h3>
 								<h6 className="card-subtitle mb-2 text-muted">Gross Profit</h6>
 								<p className="h2 card-text">{grossProfit}</p>
@@ -170,22 +213,25 @@ const FinancialRanking = () => {
 						</div>
 					</div>
 
-					<div className="col pt-5 d-flex justify-content-center">
-						<div className="card" style={{ width: "18rem" }}>
+					<div className="col pt-3 d-flex justify-content-center">
+						<div
+							className="card border border-3 shadow"
+							style={{ width: "18rem" }}
+						>
 							<div className="card-body">
 								<h3 className="card-title">売上利益率</h3>
 								<h6 className="card-subtitle mb-2 text-muted">
 									grossProfitRatio
 								</h6>
 								<p className="h2 card-text">{grossProfitRatio}</p>
-								<i class="fa-solid fa-percent fa-2x"></i>
+								<i className="fa-solid fa-percent fa-2x"></i>
 							</div>
 						</div>
 					</div>
 				</div>
 
 				<div className="row pt-3 d-flex justify-content-center">
-					<div className="col-12  d-flex justify-content-center">
+					<div className="col-5  d-flex justify-content-center">
 						<div
 							className="ag-theme-alpine"
 							style={{ height: 600, width: 1000 }}
@@ -198,6 +244,30 @@ const FinancialRanking = () => {
 							></AgGridReact>
 						</div>
 					</div>
+					<div className="col-5">
+						<div className="card border border-3 shadow">
+							<div className="card-body">
+								<h3 className="card-title">売上高推移</h3>
+								<h6 className="card-subtitle mb-2 text-muted">
+									grossProfitRatio
+								</h6>
+								<Line data={linedata} />
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div>
+				<div className="row d-flex justify-content-center">
+					<div className="col-6">
+						<h2>売上高推移</h2>
+						<Line data={linedata} />
+					</div>
+				</div>
+			</div>
+			<div className="row d-flex justify-content-center">
+				<div className="col-6">
+					{initialData === true ? console.log(dateData) : null}
 				</div>
 			</div>
 		</>
