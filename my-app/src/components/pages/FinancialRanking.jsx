@@ -10,8 +10,12 @@ import { Line } from "react-chartjs-2";
 import Chart from "chart.js/auto";
 
 const FinancialRanking = () => {
+	const fmt = new Intl.NumberFormat("ja-JP", {
+		notation: "compact",
+	});
 	// FinancialAPI
 	const fpmAPI = `https://financialmodelingprep.com/api/v3/income-statement/`;
+	const yen = 130;
 	// 言語セレクトボックス
 	const [ticker, settTicker] = useState();
 	const tikerControl = async (value) => {
@@ -26,8 +30,11 @@ const FinancialRanking = () => {
 	};
 	// 表示用state
 	const [sales, setSales] = useState("-");
+	const [salesYen, setSalesYen] = useState("-");
 	const [costOfRevenue, setCostOfRevenue] = useState("-");
+	const [costOfRevenueYen, setCostOfRevenueYen] = useState("-");
 	const [grossProfit, setGrossProfit] = useState("-");
+	const [grossProfitYen, setGrossProfitYen] = useState("-");
 	const [grossProfitRatio, setGrossProfitRatio] = useState("-");
 	const [dateData, seDateData] = useState([]);
 	const [initialData, setInitialData] = useState(false);
@@ -69,6 +76,7 @@ const FinancialRanking = () => {
 	 * @param {selectTiker} selectTiker
 	 */
 	const onClickSearch = async (selectTiker) => {
+		await getDollYen();
 		const fpmAPIUrl = `${fpmAPI}${selectTiker}?limit=120&apikey=${Config.key}`;
 		console.log(fpmAPIUrl);
 		try {
@@ -87,11 +95,32 @@ const FinancialRanking = () => {
 
 				console.table(fmpItems);
 				setSales(fmpItems[0].revenue.toLocaleString());
+				setSalesYen(fmt.format(fmpItems[0].revenue * yen).toLocaleString());
 				setGrossProfit(fmpItems[0].grossProfit.toLocaleString());
+				setGrossProfitYen(
+					fmt.format(fmpItems[0].grossProfit * yen).toLocaleString()
+				);
 				setCostOfRevenue(fmpItems[0].costOfRevenue.toLocaleString());
-				setGrossProfitRatio(fmpItems[0].grossProfitRatio.toLocaleString());
+				setCostOfRevenueYen(
+					fmt.format(fmpItems[0].costOfRevenue * yen).toLocaleString()
+				);
+				setGrossProfitRatio(
+					fmpItems[0].grossProfitRatio.toLocaleString() * 100
+				);
 				setGitRow(fmpItems);
 				setInitialData(true);
+			});
+		} catch (e) {
+			console.log(e);
+		} finally {
+		}
+	};
+
+	const getDollYen = async () => {
+		const url = "https://www.gaitameonline.com/rateaj/getrate";
+		try {
+			await axios.get(url).then((response) => {
+				console.log(response.data);
 			});
 		} catch (e) {
 			console.log(e);
@@ -174,41 +203,59 @@ const FinancialRanking = () => {
 					<div className="col pt-3 d-flex justify-content-center">
 						<div
 							className="card border border-3 shadow"
-							style={{ width: "18rem" }}
+							style={{ width: "22rem" }}
 						>
 							<div className="card-body">
 								<h3 className="card-title">売上高</h3>
 								<h6 className="card-subtitle mb-2 text-muted">Sales Revenue</h6>
-								<p className="h2 card-text">{sales}</p>
-								<i className="fa-solid fa-dollar-sign fa-2x"></i>
+								<p className="h2 card-text">
+									<i className="fa-solid fa-dollar-sign"></i>
+									{sales}
+								</p>
+								<p className="h2 card-text">
+									<i class="fa-solid fa-yen-sign"></i>
+									{salesYen}
+								</p>
 							</div>
 						</div>
 					</div>
 					<div className="col pt-3 d-flex justify-content-center">
 						<div
 							className="card border border-3 shadow rounded"
-							style={{ width: "18rem" }}
+							style={{ width: "20rem" }}
 						>
 							<div className="card-body">
 								<h3 className="card-title">収益コスト</h3>
 								<h6 className="card-subtitle mb-2 text-muted">
 									Cost of Revenue
 								</h6>
-								<p className="h2 card-text">{costOfRevenue}</p>
-								<i className="fa-solid fa-dollar-sign fa-2x"></i>
+								<p className="h2 card-text">
+									<i className="fa-solid fa-dollar-sign"></i>
+									{costOfRevenue}
+								</p>
+								<p className="h2 card-text">
+									<i class="fa-solid fa-yen-sign"></i>
+									{costOfRevenueYen}
+								</p>
 							</div>
 						</div>
 					</div>
 					<div className="col pt-3 d-flex justify-content-center">
 						<div
 							className="card rounded-start border border-3 "
-							style={{ width: "18rem" }}
+							style={{ width: "20rem" }}
 						>
 							<div className="card-body shadow">
 								<h3 className="card-title">売上総利益</h3>
 								<h6 className="card-subtitle mb-2 text-muted">Gross Profit</h6>
-								<p className="h2 card-text">{grossProfit}</p>
-								<i className="fa-solid fa-dollar-sign fa-2x"></i>
+								<p className="h2 card-text">
+									<i className="fa-solid fa-dollar-sign"></i>
+									{grossProfit}
+								</p>
+								<p className="h2 card-text">
+									<i class="fa-solid fa-yen-sign"></i>
+									{grossProfitYen}
+								</p>
 							</div>
 						</div>
 					</div>
@@ -216,15 +263,17 @@ const FinancialRanking = () => {
 					<div className="col pt-3 d-flex justify-content-center">
 						<div
 							className="card border border-3 shadow"
-							style={{ width: "18rem" }}
+							style={{ width: "20rem" }}
 						>
 							<div className="card-body">
 								<h3 className="card-title">売上利益率</h3>
 								<h6 className="card-subtitle mb-2 text-muted">
 									grossProfitRatio
 								</h6>
-								<p className="h2 card-text">{grossProfitRatio}</p>
-								<i className="fa-solid fa-percent fa-2x"></i>
+								<p className="h2 card-text">
+									{grossProfitRatio}
+									<i className="fa-solid fa-percent"></i>
+								</p>
 							</div>
 						</div>
 					</div>
