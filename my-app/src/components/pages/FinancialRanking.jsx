@@ -4,17 +4,25 @@ import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/dist/styles/ag-grid.css";
 import "ag-grid-community/dist/styles/ag-theme-alpine.css";
 import * as Config from "../../config/Config";
-import Sidebar from "./Sidebar";
-import LineSample from "./LineSample";
 import { Line } from "react-chartjs-2";
 import Chart from "chart.js/auto";
 
 const FinancialRanking = () => {
+	/**
+	 * 日本円表示用
+	 */
 	const fmt = new Intl.NumberFormat("ja-JP", {
 		notation: "compact",
 	});
+	const a = {
+		o: 5,
+		h: 10,
+		l: 1,
+		c: 3,
+	};
 	// FinancialAPI
 	const fpmAPI = `https://financialmodelingprep.com/api/v3/income-statement/`;
+	const fpmAPIStock = `https://financialmodelingprep.com/api/v3/enterprise-values/`;
 	const yen = 130;
 	// 言語セレクトボックス
 	const [ticker, settTicker] = useState();
@@ -278,7 +286,25 @@ const FinancialRanking = () => {
 						</div>
 					</div>
 				</div>
-
+				<div className="row pt-3 d-flex justify-content-center">
+					<div className="col pt-3 d-flex justify-content-center">
+						<div
+							className="card border border-3 shadow"
+							style={{ width: "20rem" }}
+						>
+							<div className="card-body">
+								<h3 className="card-title">成長性・EPS</h3>
+								<h6 className="card-subtitle mb-2 text-muted">
+									grossProfitRatio
+								</h6>
+								<p className="h2 card-text">
+									{grossProfitRatio}
+									<i className="fa-solid fa-percent"></i>
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>{" "}
 				<div className="row pt-3 d-flex justify-content-center">
 					<div className="col-5  d-flex justify-content-center">
 						<div
